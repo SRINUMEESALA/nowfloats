@@ -35,7 +35,7 @@ const Header = () => {
               <span className="text-primary">Now</span>Floats
             </h1>
             <div className="d-flex">
-              <ul className="list-unstyled d-flex m-0">
+              <ul className="list-unstyled d-flex m-0 navItemsHolder">
                 {navItems.map((eachItem) => (
                   <li
                     className="mr-5  p-2 d-flex align-items-center"
