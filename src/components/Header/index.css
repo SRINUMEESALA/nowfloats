@@ -1,0 +1,18 @@
+.navbarCon{
+    width: 92vw;
+}
+
+
+.navParentCon {
+    background-color: #F0F0F0	;
+    
+}
+.navParentCon li{
+    font-weight: bold;
+}
+.navLinkCon{
+    color: rgb(0,30,60);
+}
+.navLinkCon:hover{
+    text-decoration: none;
+}

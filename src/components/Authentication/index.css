@@ -1,0 +1,12 @@
+.navLinkCon:hover{
+    text-decoration: none;
+}
+.authenticationCon{
+    min-height: 90vh;
+}
+
+@media screen and (max-width:756px) {
+    .loginIllustration{
+        width: 100% !important;
+    }
+}

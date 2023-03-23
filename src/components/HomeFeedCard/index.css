@@ -1,0 +1,15 @@
+.homeFeedCardCon{
+    background-color: #F0FFFF	;
+    border-radius: 15px !important;
+}
+.feedImage{
+    height: 45vh;
+    width: 100%;
+}
+.navLinkInFeedCard{
+    all: unset;
+}
+.navLinkInFeedCard:hover{
+    all: unset;
+    cursor: pointer;
+}
