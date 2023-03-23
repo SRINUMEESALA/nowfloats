@@ -1,7 +1,5 @@
 import Cookies from "js-cookie";
 import { Navigate, NavLink, Outlet } from "react-router-dom";
-import Login from "../Login";
-import Register from "../Register";
 import "./index.css";
 
 const Authentication = () => {
@@ -19,24 +17,26 @@ const Authentication = () => {
 
   const renderAuthentication = () => (
     <div className="d-flex flex-md-row flex-column align-items-center justify-content-center authenticationCon">
-      <div className="col-6">
+      <div className="col-6 text-center">
         <img
           className="w-75 loginIllustration"
           alt="loginImage"
           src="https://img.freepik.com/free-vector/account-concept-illustration_114360-399.jpg?w=740&t=st=1679468065~exp=1679468665~hmac=f83573a6cf92dc1e0b0615a1a55b8af5ba4c53d3bbc4ea5900563a387f3d83f5"
         />
       </div>
-      <div className="border p-4 rounded  ">
-        <div className="d-flex justify-content-between mb-4">
-          <NavLink to="/auth/login" className="navLinkCon">
-            <h1 className="h4">Login</h1>
-          </NavLink>
-          <div className="">|</div>
-          <NavLink to="/auth/register" className="navLinkCon">
-            <h1 className="h4">Register</h1>
-          </NavLink>
+      <div className=" col-6 d-flex justify-content-center">
+        <div className="border p-4 rounded  col-5">
+          <div className="d-flex justify-content-between mb-4 ">
+            <NavLink to="/auth/login" className="navLinkCon">
+              <h1 className="h4">Login</h1>
+            </NavLink>
+            <div className="">|</div>
+            <NavLink to="/auth/register" className="navLinkCon">
+              <h1 className="h4">Register</h1>
+            </NavLink>
+          </div>
+          <Outlet />
         </div>
-        <Outlet />
       </div>
     </div>
   );

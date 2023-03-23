@@ -6,6 +6,7 @@ import Cookies from "js-cookie";
 import { v4 as uuidv4 } from "uuid";
 import { format } from "date-fns";
 import ReactPlayer from "react-player";
+import { Link } from "react-router-dom";
 
 const UserPosts = () => {
   const [userPostsApiStatus, setUserPostsApiStatus] = useState(
@@ -43,23 +44,6 @@ const UserPosts = () => {
     }
   };
 
-  const renderImage = (sourceUrl) => (
-    <div className="mt-2 mb-2">
-      <img alt="feedPicture" className="feedImage" src={sourceUrl} />
-    </div>
-  );
-
-  const renderVideo = (sourceUrl) => (
-    <div className="responsive-container mt-2 mb-2">
-      <ReactPlayer
-        url={sourceUrl}
-        controls={true}
-        volume={0.5}
-        className="w-100"
-      />
-    </div>
-  );
-
   useEffect(() => {
     getUserPosts();
   }, []);
@@ -71,7 +55,7 @@ const UserPosts = () => {
   );
 
   const renderEachUserPost = (postObj) => {
-    const { date, content, sourceUrl, fileType } = postObj;
+    const { date, content, sourceUrl, fileType, id } = postObj;
 
     let postedDate =
       date.seconds > 0
@@ -79,26 +63,28 @@ const UserPosts = () => {
         : new Date(new Date() - date.seconds);
     postedDate = format(postedDate, "MM/dd/yyyy");
     return (
-      <div className="border col-10 d-flex p-2  rounded">
-        <div className="col-4">
-          {fileType === "video" ? (
-            <div className="responsive-container mt-2 mb-2">
-              <ReactPlayer
-                url={sourceUrl}
-                controls={true}
-                volume={0.5}
-                className="w-100"
-              />
-            </div>
-          ) : (
-            <img className="w-100" src={sourceUrl} alt="postImage" />
-          )}
+      <Link to={`/content-details/${id}`}>
+        <div className="border col-10 d-flex p-2  rounded">
+          <div className="col-4">
+            {fileType === "video" ? (
+              <div className="responsive-container mt-2 mb-2">
+                <ReactPlayer
+                  url={sourceUrl}
+                  controls={true}
+                  volume={0.5}
+                  className="w-100"
+                />
+              </div>
+            ) : (
+              <img className="w-100" src={sourceUrl} alt="postImage" />
+            )}
+          </div>
+          <div className="col-8 d-flex flex-column">
+            <p className="text-dark h6 align-self-end">{postedDate}</p>
+            <p className="text-secondary">{content}</p>
+          </div>
         </div>
-        <div className="col-8 d-flex flex-column">
-          <p className="text-dark h6 align-self-end">{postedDate}</p>
-          <p className="text-secondary">{content}</p>
-        </div>
-      </div>
+      </Link>
     );
   };
 

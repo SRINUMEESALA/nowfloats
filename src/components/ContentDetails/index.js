@@ -118,7 +118,7 @@ const ContentDetails = () => {
                   <div className="ui red button">
                     <i className="heart icon"></i> Like
                   </div>
-                  <a className="ui basic red label">100</a>
+                  <p className="ui basic red label">100</p>
                 </div>
               </div>
 

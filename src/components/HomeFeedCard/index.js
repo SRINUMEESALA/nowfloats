@@ -7,6 +7,7 @@ import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
 import Button from "@mui/material/Button";
 import { Link } from "react-router-dom";
 import Cookies from "js-cookie";
+import { connect } from "react-redux";
 
 function stringToColor(string) {
   let hash = 0;
@@ -63,31 +64,57 @@ const HomeFeedCard = (props) => {
     </div>
   );
 
+  const onClickLikeButton = () =>
+    props.likeButtonClicked(props.eachFeedItem.id);
+
+  // console.log(props.likesList.includes(id));
+
   return (
     <div className="homeFeedCardCon p-3 mt-3 mb-3">
-      <Link to={`/content-details/${id}`} className="navLinkInFeedCard">
-        <div className="userDetCon d-flex">
-          <Avatar {...stringAvatar(author[0])} />
-          <div className="ml-3">
+      <div className="userDetCon d-flex">
+        <Avatar {...stringAvatar(author[0])} />
+        <div className="ml-3">
+          <Link to={`/content-details/${id}`} className="navLinkInFeedCard">
             <h1 className="h4">{author}</h1>
             <p className="text-secondary">{content}</p>
-            {fileType === "video" ? renderVideo() : renderImage()}
-            <div className="d-flex justify-content-end">
-              <Button className="btn">
-                <FavoriteBorderIcon />
-              </Button>
-              <Button className="btn">
-                <ChatBubbleOutlineIcon />
-              </Button>
-              <Button className="btn">
-                <ShareIcon />
-              </Button>
-            </div>
+          </Link>
+          {fileType === "video" ? renderVideo() : renderImage()}
+          <div className="d-flex justify-content-end">
+            <Button className="btn" onClick={onClickLikeButton}>
+              <FavoriteBorderIcon
+                className={props.likesList.includes(id) && "text-warning"}
+              />
+            </Button>
+            <Button className="btn">
+              <ChatBubbleOutlineIcon />
+            </Button>
+            <Button className="btn">
+              <ShareIcon />
+            </Button>
           </div>
         </div>
-      </Link>
+      </div>
     </div>
   );
 };
 
-export default HomeFeedCard;
+const mapStateToProps = (state) => {
+  const { likesList } = state;
+  return {
+    likesList,
+  };
+};
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    likeButtonClicked: (postId) => {
+      console.log(postId);
+      dispatch({
+        type: "onClickLikeButton",
+        postId: postId,
+      });
+    },
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(HomeFeedCard);

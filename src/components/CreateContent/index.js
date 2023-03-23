@@ -47,6 +47,7 @@ const CreateContent = () => {
       };
       const response = await fetch(`${url}/post`, options);
       const result = await response.json();
+      // console.log(result)
       setUpload(null);
       setUploadStatus(apiStatusConstants.success);
     } catch (error) {

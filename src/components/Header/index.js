@@ -31,7 +31,7 @@ const Header = () => {
       <div className="d-none d-md-block " style={{ color: "rgb(0,30,60)" }}>
         <div className="navParentCon d-flex justify-content-center">
           <div className="navbarCon d-flex justify-content-between">
-            <h1 className="pt-2 pb-2 h2">
+            <h1 className="pt-3 pb-3 h2">
               <span className="text-primary">Now</span>Floats
             </h1>
             <div className="d-flex">
