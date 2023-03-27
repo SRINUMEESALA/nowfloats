@@ -106,10 +106,13 @@ const HomeFeedCard = (props) => {
 
   const renderFeedCard = () => (
     <div className="homeFeedCardCon p-3 mt-3 mb-3">
-      <div className="userDetCon d-flex">
-        <Avatar sx={{ bgcolor: `${selectColor(author[0])}` }}>
-          {author[0]}
-        </Avatar>
+      <div className="userDetCon d-flex ">
+        <div className="d-none d-md-block">
+          <Avatar sx={{ bgcolor: `${selectColor(author[0])}` }}>
+            {author[0]}
+          </Avatar>
+        </div>
+
         <div className="ml-3 w-100">
           <Link to={`/content-details/${id}`} className="navLinkInFeedCard">
             <h1 className="h4">{author}</h1>

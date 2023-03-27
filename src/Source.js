@@ -7,8 +7,8 @@ export const apiStatusConstants = {
   fail: "failed",
 };
 
-// export const url = "http://localhost:4000";
-export const url = "https://nowfloatsbackend.onrender.com";
+export const url = "http://localhost:4000";
+// export const url = "https://nowfloatsbackend.onrender.com";
 
 export const RenderFailureView = (props) => (
   <div className="failureViewCon d-flex justify-content-center align-items-center">

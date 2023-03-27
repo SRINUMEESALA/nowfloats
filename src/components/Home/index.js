@@ -15,15 +15,12 @@ const Home = () => {
   );
 
   const renderFeedList = () => {
-    const filteredFeed = feed.filter(
-      (obj) => obj.author !== Cookies.get("currentUser")
-    );
     return (
-      <>
-        {filteredFeed.map((eachFeedItem) => (
+      <li className=" col-12 col-md-8  mx-auto">
+        {feed.map((eachFeedItem) => (
           <HomeFeedCard eachFeedItem={eachFeedItem} key={uuidv4()} />
         ))}
-      </>
+      </li>
     );
   };
 
@@ -67,7 +64,9 @@ const Home = () => {
       <div className="">
         <hr className="m-0 p-0" />
       </div>
-      <div className="feedCon align-self-center">{feedListMemo}</div>
+      <ul className="feedCon align-self-center list-unstyled w-100">
+        {feedListMemo}
+      </ul>
     </>
   );
 

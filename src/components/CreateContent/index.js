@@ -112,9 +112,9 @@ const CreateContent = () => {
 
   const renderUploadForm = () => (
     <>
-      <h1 className="h3 font-weight-bold">Create Post</h1>
+      <h1 className="h3 font-weight-bold d-none d-md-block">Create Post</h1>
       <form
-        className="uploadCon col-6 p-5 rounded"
+        className="uploadCon col-md-6 col-12 p-5 rounded"
         onSubmit={onClickUploadData}>
         <div className="form-group">
           <label htmlFor="description " className="h5 text-secondary mb-3">
