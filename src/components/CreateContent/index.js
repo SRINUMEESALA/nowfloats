@@ -9,11 +9,59 @@ import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { apiStatusConstants, url } from "../../Source";
 import CircularProgress from "@mui/material/CircularProgress";
 import Cookies from "js-cookie";
+import Snackbar from "@mui/material/Snackbar";
+import CloseIcon from "@mui/icons-material/Close";
+import MuiAlert from "@mui/material/Alert";
+import Slide from "@mui/material/Slide";
+import React from "react";
+
+export const Alert = React.forwardRef(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
 
 const CreateContent = () => {
   const [upload, setUpload] = useState(null);
   const [uploadStatus, setUploadStatus] = useState(apiStatusConstants.initial);
   const [description, setDescription] = useState("");
+  const [open, setOpen] = useState(false);
+  const [snackProps, setSnackProps] = useState({ msg: "", color: "" });
+
+  const handleClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setOpen(false);
+  };
+
+  const action = (
+    <React.Fragment>
+      <IconButton
+        size="small"
+        aria-label="close"
+        color="inherit"
+        onClick={handleClose}>
+        <CloseIcon fontSize="small" />
+      </IconButton>
+    </React.Fragment>
+  );
+
+  const renderSnackBar = (msg, color) => {
+    return (
+      <Snackbar
+        open={open}
+        autoHideDuration={3000}
+        onClose={handleClose}
+        action={action}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        TransitionComponent={Slide}>
+        <Alert severity={snackProps.color}>
+          <span className="h6">{snackProps.msg}</span>
+          <br></br>
+          {upload !== null && upload.name}
+        </Alert>
+      </Snackbar>
+    );
+  };
 
   const onClickUploadData = async (event) => {
     event.preventDefault();
@@ -27,8 +75,6 @@ const CreateContent = () => {
     try {
       const uploadingResult = await uploadBytes(imgRef, upload);
       const mediaUrl = await getDownloadURL(uploadingResult.ref);
-
-      let secondCount = new Date() - new Date("1970-01-01");
       const options = {
         method: "POST",
         headers: {
@@ -37,10 +83,6 @@ const CreateContent = () => {
         body: JSON.stringify({
           author: Cookies.get("currentUser"),
           sourceUrl: mediaUrl,
-          date: {
-            seconds: secondCount,
-            nanoseconds: 0,
-          },
           content: description,
           fileType: upload.type.slice(0, 5),
         }),
@@ -48,18 +90,31 @@ const CreateContent = () => {
       const response = await fetch(`${url}/post`, options);
       const result = await response.json();
       // console.log(result)
-      setUpload(null);
+
+      setDescription(null);
       setUploadStatus(apiStatusConstants.success);
+      setSnackProps({ msg: "File successfully uploaded", color: "success" });
+      setOpen(true);
+      setUpload(null);
     } catch (error) {
       console.log(error);
       setUploadStatus(apiStatusConstants.fail);
+      setSnackProps({ msg: "File upload failed", color: "error" });
+      setOpen(true);
     }
   };
+
+  const onFileSelect = (event) => {
+    setUpload(event.target.files[0]);
+    setSnackProps({ msg: "File successfully impported", color: "success" });
+    setOpen(true);
+  };
+
   const renderUploadForm = () => (
     <>
       <h1 className="h3 font-weight-bold">Create Post</h1>
       <form
-        className="uploadCon col-6 p-4 rounded"
+        className="uploadCon col-6 p-5 rounded"
         onSubmit={onClickUploadData}>
         <div className="form-group">
           <label htmlFor="description " className="h5 text-secondary mb-3">
@@ -68,7 +123,7 @@ const CreateContent = () => {
           <textarea
             className="form-control"
             id="description"
-            rows="3"
+            rows="6"
             required
             value={description}
             onChange={(event) => setDescription(event.target.value)}
@@ -86,7 +141,7 @@ const CreateContent = () => {
                 accept="image/*,video/*"
                 multiple
                 type="file"
-                onChange={(event) => setUpload(event.target.files[0])}
+                onChange={onFileSelect}
               />
             </Button>
             <IconButton
@@ -97,7 +152,7 @@ const CreateContent = () => {
                 hidden
                 accept="image/*,video/*"
                 type="file"
-                onChange={(event) => setUpload(event.target.files[0])}
+                onChange={onFileSelect}
               />
               <PhotoCamera />
             </IconButton>
@@ -113,6 +168,7 @@ const CreateContent = () => {
           Publish
         </Button>
       </form>
+      {renderSnackBar()}
     </>
   );
 
@@ -143,6 +199,7 @@ const CreateContent = () => {
           Upload More
         </Button>
       </div>
+      {renderSnackBar()}
     </div>
   );
 
@@ -161,6 +218,7 @@ const CreateContent = () => {
           Upload Again
         </Button>
       </div>
+      {renderSnackBar()}
     </div>
   );
 

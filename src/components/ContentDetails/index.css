@@ -4,3 +4,6 @@
 .commentsCon{
     height: 200px;
 }
+.commentsDisplayCon{
+    min-height: 200px;
+}

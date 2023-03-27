@@ -13,3 +13,10 @@
     all: unset;
     cursor: pointer;
 }
+.dialogCon{
+    width: 30vw;
+    height: 30vh;
+}
+.textAreaCon{
+    flex-grow: 1;
+}

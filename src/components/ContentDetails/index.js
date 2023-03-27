@@ -2,14 +2,16 @@ import "./index.css";
 import Avatar from "@mui/material/Avatar";
 import ReactPlayer from "react-player";
 import Button from "@mui/material/Button";
-import Cookies from "js-cookie";
 import { useEffect, useState } from "react";
 import { apiStatusConstants, RenderFailureView, url } from "../../Source";
 import { useParams } from "react-router-dom";
 import Loader from "react-loader-spinner";
 import formatDistanceToNow from "date-fns/formatDistanceToNow";
+import { v4 as uuidv4 } from "uuid";
+import { connect } from "react-redux";
+import { selectColor } from "../HomeFeedCard";
 
-const ContentDetails = () => {
+const ContentDetails = (props) => {
   const [isAddingComment, setIsAddingComment] = useState(false);
   const [comment, setComment] = useState("");
   const [postDetailsApiStatus, setPostDetailsApiStatus] = useState(
@@ -17,41 +19,6 @@ const ContentDetails = () => {
   );
   const [details, setDetails] = useState({});
   const { id } = useParams();
-
-  function stringToColor(string) {
-    let hash = 0;
-    let i;
-
-    /* eslint-disable no-bitwise */
-    for (i = 0; i < string.length; i += 1) {
-      hash = string.charCodeAt(i) + ((hash << 5) - hash);
-    }
-
-    let color = "#";
-
-    for (i = 0; i < 3; i += 1) {
-      const value = (hash >> (i * 8)) & 0xff;
-      color += `00${value.toString(16)}`.slice(-2);
-    }
-    /* eslint-enable no-bitwise */
-
-    return color;
-  }
-
-  function stringAvatar(name) {
-    let chooseColor = Cookies.get("currentUser")
-      .split("", 10)
-      .sort(() => Math.random() - 0.5)
-      .join("")
-      .slice(0);
-
-    return {
-      sx: {
-        bgcolor: stringToColor(chooseColor),
-      },
-      children: `${name.split(" ")[0][0]}`,
-    };
-  }
 
   const renderImage = (sourceUrl) => (
     <div className="mt-2 mb-2">
@@ -97,17 +64,77 @@ const ContentDetails = () => {
     getPostDetails();
   }, []);
 
+  const onClickAddCommentButton = () => {
+    setIsAddingComment(true);
+  };
+
+  const onClickPostCommentButton = () => {
+    if (comment === "") {
+      setIsAddingComment(false);
+      return;
+    }
+    let currentComments = props.comments;
+    // console.log("Before", comment, currentComments);
+    const updatedComments = currentComments.map((each) => {
+      if (each.postId === id) {
+        let newCommentsList = [...each.commentsList, comment];
+        setComment("");
+        return { ...each, commentsList: newCommentsList };
+      } else {
+        setComment("");
+        return { postId: id, commentsList: [comment], date: new Date() };
+      }
+    });
+
+    // console.log("After", updatedComments);
+    props.onClickPostComment(updatedComments);
+    setIsAddingComment(false);
+  };
+
+  const renderComments = (currentPost) => {
+    if (currentPost === undefined) {
+      return (
+        <div className="mt-4 border commentsCon d-flex justify-content-center align-items-center">
+          <h1 className="h4 text-secondary text-center">No comments yet!</h1>
+        </div>
+      );
+    }
+    return (
+      <ul className="mt-4 border  list-unstyled p-3 commentsDisplayCon">
+        {currentPost.commentsList.map((eachComment) => (
+          <li
+            key={uuidv4()}
+            className="p-3 mt-2 rounded"
+            style={{
+              backgroundColor: "rgba(0,0,0,0.1)",
+              color: "rgb(0,30,60)",
+            }}>
+            <div className="d-flex justify-content-between">
+              <p className="h6">{eachComment}</p>
+              <p className="">
+                {formatDistanceToNow(new Date(currentPost.date))} ago
+              </p>
+            </div>
+          </li>
+        ))}
+      </ul>
+    );
+  };
+
   const renderSuccessView = () => {
     const { author, date, content, sourceUrl, fileType } = details;
-    let today = new Date(new Date() - date.seconds);
-    let dateStr = formatDistanceToNow(today);
-
+    let showDate = new Date(date.seconds * 1000);
+    let dateStr = formatDistanceToNow(showDate);
+    console.log(dateStr);
+    const currentPost = props.comments.filter((obj) => obj.postId === id)[0];
     return (
       <div className="min-vh-100 postDetailsCon mt-3 mb-3">
         <div className="homeFeedCardCon p-3 mt-3 mb-3">
           <div className="userDetCon d-flex">
-            <Avatar {...stringAvatar(author[0])} />
-            <div className="ml-3">
+            <Avatar sx={{ bgcolor: `${selectColor(author[0])}` }}>
+              {author[0]}
+            </Avatar>
+            <div className="ml-3 w-100">
               <div className="d-flex justify-content-between mb-3 align-items-center">
                 <div className="">
                   <h1 className="h4 m-0">{author}</h1>
@@ -130,27 +157,33 @@ const ContentDetails = () => {
                 <h1 className="h5" style={{ color: "rgb(0,30,60" }}>
                   Comments
                 </h1>
-                <Button
-                  variant="contained"
-                  size="small"
-                  onClick={() => setIsAddingComment((val) => !val)}>
-                  {isAddingComment ? "Post" : " Add Comment"}
-                </Button>
+                {isAddingComment ? (
+                  <Button
+                    variant="contained"
+                    size="small"
+                    onClick={onClickPostCommentButton}>
+                    Post
+                  </Button>
+                ) : (
+                  <Button
+                    variant="contained"
+                    size="small"
+                    onClick={onClickAddCommentButton}>
+                    Add Comment
+                  </Button>
+                )}
               </div>
               {isAddingComment ? (
-                <div class="form-group">
+                <div className="form-group">
                   <textarea
                     className="form-control"
-                    id="exampleFormControlTextarea1"
+                    value={comment}
+                    onChange={(event) => setComment(event.target.value)}
                     placeholder="Write your comment here..."
                     rows="5"></textarea>
                 </div>
               ) : (
-                <div className="mt-4 border commentsCon d-flex justify-content-center align-items-center">
-                  <h1 className="h4 text-secondary text-center">
-                    No comments yet!
-                  </h1>
-                </div>
+                renderComments(currentPost)
               )}
             </div>
           </div>
@@ -181,4 +214,21 @@ const ContentDetails = () => {
   return <>{renderPostDetailsUI()}</>;
 };
 
-export default ContentDetails;
+const mapStateToProps = (state) => {
+  const { comments } = state;
+  return { comments };
+};
+const DispatchActionToReducer = (dispatch) => {
+  return {
+    onClickPostComment: (updatedComments) =>
+      dispatch({
+        type: "postComment",
+        updatedComments,
+      }),
+  };
+};
+
+export default connect(
+  mapStateToProps,
+  DispatchActionToReducer
+)(ContentDetails);

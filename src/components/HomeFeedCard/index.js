@@ -6,46 +6,82 @@ import ShareIcon from "@mui/icons-material/Share";
 import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
 import Button from "@mui/material/Button";
 import { Link } from "react-router-dom";
-import Cookies from "js-cookie";
+import Tooltip from "@mui/material/Tooltip";
 import { connect } from "react-redux";
+import Dialog from "@mui/material/Dialog";
+import {
+  deepOrange,
+  deepPurple,
+  lightBlue,
+  lightGreen,
+  cyan,
+} from "@mui/material/colors";
+import { useState } from "react";
 
-function stringToColor(string) {
-  let hash = 0;
-  let i;
-
-  /* eslint-disable no-bitwise */
-  for (i = 0; i < string.length; i += 1) {
-    hash = string.charCodeAt(i) + ((hash << 5) - hash);
+export const selectColor = (letter) => {
+  switch (true) {
+    case /[g-j]/.test(letter):
+      return deepPurple[500];
+    case /[k-o]/.test(letter):
+      return deepOrange[500];
+    case /[p-s]/.test(letter):
+      return lightBlue[500];
+    case /[t-x]/.test(letter):
+      return lightGreen[500];
+    default:
+      return cyan[500];
   }
-
-  let color = "#";
-
-  for (i = 0; i < 3; i += 1) {
-    const value = (hash >> (i * 8)) & 0xff;
-    color += `00${value.toString(16)}`.slice(-2);
-  }
-  /* eslint-enable no-bitwise */
-
-  return color;
-}
-
-function stringAvatar(name) {
-  let chooseColor = Cookies.get("currentUser")
-    .split("", 10)
-    .sort(() => Math.random() - 0.5)
-    .join("")
-    .slice(0);
-
-  return {
-    sx: {
-      bgcolor: stringToColor(chooseColor),
-    },
-    children: `${name.split(" ")[0][0]}`,
-  };
-}
+};
 
 const HomeFeedCard = (props) => {
   const { author, content, fileType, sourceUrl, id } = props.eachFeedItem;
+  const [addCommentDialog, setAddCommentDialog] = useState(false);
+  const [comment, setComment] = useState("");
+
+  const handleAddCommentDialog = () => {
+    setAddCommentDialog(false);
+  };
+
+  const onClickPostCommentButton = () => {
+    if (comment === "") {
+      return;
+    }
+    let currentComments = props.comments;
+
+    const updatedComments = currentComments.map((each) => {
+      if (each.postId === id) {
+        let newCommentsList = [...each.commentsList, comment];
+        setComment("");
+        return { ...each, commentsList: newCommentsList };
+      } else {
+        setComment("");
+        return { postId: id, commentsList: [comment], date: new Date() };
+      }
+    });
+    setAddCommentDialog(false);
+    props.onClickPostComment(updatedComments);
+  };
+
+  const renderCommentDialogUi = () => (
+    <Dialog open={addCommentDialog} onClose={handleAddCommentDialog}>
+      <div className="p-4 dialogCon d-flex flex-column">
+        <h1 className="h2 text-center mb-3">Add Comment</h1>
+        <div className="form-group textAreaCon">
+          <textarea
+            className="form-control h-100"
+            value={comment}
+            onChange={(event) => setComment(event.target.value)}
+            placeholder="Start typing your comment"></textarea>
+        </div>
+        <Button
+          variant="contained"
+          className="align-self-end"
+          onClick={onClickPostCommentButton}>
+          Post
+        </Button>
+      </div>
+    </Dialog>
+  );
 
   const renderImage = () => (
     <div className="mt-2 mb-2">
@@ -64,16 +100,17 @@ const HomeFeedCard = (props) => {
     </div>
   );
 
-  const onClickLikeButton = () =>
+  const onClickLikeButton = () => {
     props.likeButtonClicked(props.eachFeedItem.id);
+  };
 
-  // console.log(props.likesList.includes(id));
-
-  return (
+  const renderFeedCard = () => (
     <div className="homeFeedCardCon p-3 mt-3 mb-3">
       <div className="userDetCon d-flex">
-        <Avatar {...stringAvatar(author[0])} />
-        <div className="ml-3">
+        <Avatar sx={{ bgcolor: `${selectColor(author[0])}` }}>
+          {author[0]}
+        </Avatar>
+        <div className="ml-3 w-100">
           <Link to={`/content-details/${id}`} className="navLinkInFeedCard">
             <h1 className="h4">{author}</h1>
             <p className="text-secondary">{content}</p>
@@ -82,38 +119,52 @@ const HomeFeedCard = (props) => {
           <div className="d-flex justify-content-end">
             <Button className="btn" onClick={onClickLikeButton}>
               <FavoriteBorderIcon
-                className={props.likesList.includes(id) && "text-warning"}
+                className={`${props.likesList.includes(id) && "text-warning"}`}
               />
             </Button>
-            <Button className="btn">
+
+            <Button className="btn" onClick={() => setAddCommentDialog(true)}>
               <ChatBubbleOutlineIcon />
             </Button>
-            <Button className="btn">
-              <ShareIcon />
-            </Button>
+            <Tooltip
+              title="This feature is currenly not available"
+              placement="top"
+              arrow>
+              <Button className="btn">
+                <ShareIcon />
+              </Button>
+            </Tooltip>
           </div>
         </div>
       </div>
+      <>{renderCommentDialogUi()}</>
     </div>
   );
+
+  return <>{renderFeedCard()}</>;
 };
 
 const mapStateToProps = (state) => {
-  const { likesList } = state;
+  const { likesList, comments } = state;
   return {
     likesList,
+    comments,
   };
 };
 
 const mapDispatchToProps = (dispatch) => {
   return {
     likeButtonClicked: (postId) => {
-      console.log(postId);
       dispatch({
         type: "onClickLikeButton",
         postId: postId,
       });
     },
+    onClickPostComment: (updatedComments) =>
+      dispatch({
+        type: "postComment",
+        updatedComments,
+      }),
   };
 };
 

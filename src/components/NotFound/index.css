@@ -1,0 +1,7 @@
+.navLinkInNotFound{
+    all: unset;
+}
+.navLinkInNotFound:hover{
+   all: unset;
+   cursor: pointer;
+}

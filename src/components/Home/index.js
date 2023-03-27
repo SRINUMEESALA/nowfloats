@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import "./index.css";
 import { v4 as uuidv4 } from "uuid";
 import HomeFeedCard from "../HomeFeedCard";
@@ -13,6 +13,21 @@ const Home = () => {
   const [retrieveFeedApiStatus, setRetrieveFeedApiStatus] = useState(
     apiStatusConstants.initial
   );
+
+  const renderFeedList = () => {
+    const filteredFeed = feed.filter(
+      (obj) => obj.author !== Cookies.get("currentUser")
+    );
+    return (
+      <>
+        {filteredFeed.map((eachFeedItem) => (
+          <HomeFeedCard eachFeedItem={eachFeedItem} key={uuidv4()} />
+        ))}
+      </>
+    );
+  };
+
+  const feedListMemo = useMemo(() => renderFeedList(), [feed]);
 
   const RetriveFeed = async () => {
     setRetrieveFeedApiStatus(apiStatusConstants.load);
@@ -30,7 +45,7 @@ const Home = () => {
       const result = await response.json();
       if (response.ok) {
         setRetrieveFeedApiStatus(apiStatusConstants.success);
-        setFeed(result.sort(() => 0.5 - Math.random()));
+        setFeed(result);
       } else {
         setRetrieveFeedApiStatus(apiStatusConstants.fail);
       }
@@ -52,11 +67,7 @@ const Home = () => {
       <div className="">
         <hr className="m-0 p-0" />
       </div>
-      <div className="feedCon align-self-center">
-        {feed.map((eachFeedItem) => (
-          <HomeFeedCard eachFeedItem={eachFeedItem} key={uuidv4()} />
-        ))}
-      </div>
+      <div className="feedCon align-self-center">{feedListMemo}</div>
     </>
   );
 

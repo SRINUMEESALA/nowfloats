@@ -34,6 +34,7 @@ const UserPosts = () => {
       const result = await response.json();
       if (response.ok) {
         setUserPostsApiStatus(apiStatusConstants.success);
+
         setPosts(result);
       } else {
         setUserPostsApiStatus(apiStatusConstants.fail);
@@ -56,14 +57,13 @@ const UserPosts = () => {
 
   const renderEachUserPost = (postObj) => {
     const { date, content, sourceUrl, fileType, id } = postObj;
+    let d = new Date(date.seconds * 1000);
+    let postedDate = format(d, "MM/dd/yyyy");
 
-    let postedDate =
-      date.seconds > 0
-        ? new Date(new Date() + date.seconds)
-        : new Date(new Date() - date.seconds);
-    postedDate = format(postedDate, "MM/dd/yyyy");
     return (
-      <Link to={`/content-details/${id}`}>
+      <Link
+        to={`/content-details/${id}`}
+        className="d-flex justify-content-center">
         <div className="border col-10 d-flex p-2  rounded">
           <div className="col-4">
             {fileType === "video" ? (
@@ -89,7 +89,6 @@ const UserPosts = () => {
   };
 
   const renderSuccessView = () => {
-    console.log(posts);
     return (
       <ul className="d-flex justify-content-center mb-4 list-unstyled flex-column">
         {posts.length !== 0 ? (
